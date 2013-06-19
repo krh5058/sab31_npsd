@@ -1,0 +1,78 @@
+NPSD
+As requested by Adriene Beltz (axb1017@psu.edu)
+6/19/13
+
+Author: Ken Hwang (ken.r.hwang@gmail.com)
+SLEIC, PSU
+
+
+------------------------------
+Updates:
+
+
+Package contents --
+
+1) Package essentials: ./bin/
+	- UI script: javaui.m
+	- Class file: main.m
+2) Picture directory: ./content/
+	- images/ contains folders for each of run
+	- xls/ contains .xls files corresponding for each image folder
+3) Output directory: ./out/
+4) Primary call script: npsd.m
+5) Dated ReadMe file
+
+Usage instructions and general details--
+
+****
+****
+****
+
+
+Primary script details --
+
+npsd.m
+-Initializes directory structure
+-Initializes object of class main and class pres.
+-Initializes PsychToolBox window
+
+Secondary script details --
+
+javaui.m
+-Creates a GUI interface for collecting experimental parameters: subject ID, triggering option, and list order.
+-Displays variable run list selection, defaults at same order as runs are listed in the directory
+-Radio buttons for trigger options
+-Prevents blank subject ID
+-Prevents blank list order
+-Cancels script on close out
+-Verifies information with user on confirmation
+
+Class definition details --
+
+main.m
+-Properties: exec, monitor, path, exp
+-Static Methods: disp
+-Methods: main (constructor), pathset, expset
+
+Properties (main):
+- exec is set to default and is a placeholder in case of other run modes
+- monitor stores all display-related information, primarily driven from PsychToolbox.  Populated by 'disp'.
+- path is the path directory structure, stored as strings.  Requires directory root and sub-directory list.  Populated by 'pathset'.
+- exp are experimental parameters including: presentation structure and timing, subject info, TR, iPAT, disdaq period, and relevant text.  Populated by 'expset'.
+
+Methods (main):
+main (constructor)
+	- Requires directory root and sub-directory list.  Executes pathset, disp, and expset.
+
+pathset
+	- Requires directory root and sub-directory list.  Populates 'path' properties for object instance of class main.  Path properties are strings associated with the sub-directory list.
+
+disp
+	- Populates 'monitor' properties.  Largely driven by PsychToolbox related screen-handling functions.  This method is static.
+	- VisualDebugLevel is turned to 0.  Slight differences in beam position queries and reported refresh rate can cause warnings about synchronization issues.  However, this is not on the order of timing that should cause concern.
+
+expset
+	- Loads timing information from timing sheets in content/xls/.  Saves as exp.build.
+	- Queries subject info (javaui.m)
+	- Initializes disdaq timing for manual triggering, and related text information.
+	- All data is populated into the 'exp' property.
