@@ -1,0 +1,168 @@
+NPSD
+As requested by Adriene Beltz (axb1017@psu.edu)
+6/21/13
+
+Author: Ken Hwang (ken.r.hwang@gmail.com)
+SLEIC, PSU
+
+
+------------------------------
+Updates:
+	6/21/13 krh
+		- Listener handling in npsd.m
+		- Loop for cycle() in npsd.m
+		- Added key definitions to main.exp()
+		- Added imgload() to main
+		- Added addl() to main
+		- Added tset() to main
+		- Added cycle() to main
+		- Added pres class
+		- Added dispfix() to pres
+		- Added dispimg() to pres
+		- Added disptxt() to pres
+		- Added propset() to pres
+
+------------------------------
+
+Package contents --
+
+1) Package essentials: ./bin/
+	- UI script: javaui.m
+	- Class file: main.m
+2) Picture directory: ./content/
+	- images/ contains folders for each of run
+	- xls/ contains .xls files corresponding for each image folder
+3) Output directory: ./out/
+4) Primary call script: npsd.m
+5) Dated ReadMe file
+
+Usage instructions and general details--
+
+****
+****
+****
+
+
+Primary script details --
+
+npsd.m
+-Initializes directory structure
+-Initializes object of class main and class pres.
+-Initializes PsychToolBox window
+-Runs main.cycle() in appropriate order according to exp.order
+
+Secondary script details --
+
+javaui.m
+-Creates a GUI interface for collecting experimental parameters: subject ID, triggering option, and list order.
+-Displays variable run list selection, defaults at same order as runs are listed in the directory
+-Radio buttons for trigger options
+-Prevents blank subject ID
+-Prevents blank list order
+-Cancels script on close out
+-Verifies information with user on confirmation
+
+Class definition details --
+
+main.m
+-Properties: debug, monitor, path, exp, image, temp_t, abort, dat (Observable)
+-Static Methods: disp
+-Methods: main (constructor), pathset, expset, imgload, addl, tset, cycle
+
+Properties (main):
+- debug (1/0) allows for debug during development
+- monitor stores all display-related information, primarily driven from PsychToolbox.  Populated by 'disp'.
+- path is the path directory structure, stored as strings.  Requires directory root and sub-directory list.  Populated by 'pathset'.
+- exp are experimental parameters including: presentation structure and timing, subject info, TR, iPAT, disdaq period, key definitions, cut-off fixation time, and relevant text.  Populated by 'expset'.
+- image is a matrix with length according to number of selected run lists.  Each entry contains image matrices in a cell that is the size of the run list.  Null values stand for fixation.
+- temp_t is the temporary onset value (computer time).  This value is modified by tset
+- abort is set at a default of 0.  This is modified in cycle()
+- dat (Observable) is a general data structure for transferring values from objects of class main to class pres.  pres.propset() is the callback function to populate object instances of class pres upon changes to 'dat'.
+
+Events (main):
+- fix notifies a listener handle (lh1) in objects of class pres, which executes method dispfix().
+- showimg notifies a listener handle (lh2) in objects of class pres, which executes method showimg().
+- txt notifies a listener handle (lh3) in objects of class pres, which executes method disptxt().
+
+Methods (main):
+main (constructor)
+	- Requires directory root and sub-directory list.  Executes pathset, disp, and expset.
+
+pathset
+	- Requires directory root and sub-directory list.  Populates 'path' properties for object instance of class main.  Path properties are strings associated with the sub-directory list.
+
+disp
+	- Populates 'monitor' properties.  Largely driven by PsychToolbox related screen-handling functions.  This method is static.
+	- VisualDebugLevel is turned to 0.  Slight differences in beam position queries and reported refresh rate can cause warnings about synchronization issues.  However, this is not on the order of timing that should cause concern.
+
+expset
+	- Loads timing information from timing sheets in content/xls/.  Saves as exp.build.
+	- Queries subject info (javaui.m)
+	- Initializes disdaq timing for manual triggering, and related text information.
+	- Initializes key values
+	- Initializes output file names
+	- All data is populated into the 'exp' property.
+
+imgload
+	- Evaluates only selected lists
+	- Pre-allocates image property
+	- Fills image property with images according to dat presentation order for each list
+	- All data is populated into the 'image' property.
+
+addl
+	- Adds a listener for 'temp_t' property under condition 'PostSet'.
+	- Executes tset.
+
+tset
+	- Takes the value 'temp_t' property and refreshes the current 'temp_t' property of class main.
+
+cycle
+	- Determines start time.
+	- Initiates an iterator for cycle through presentation events.
+	- While loop to cycle at maximum Matlab processing rate.
+	- Each loop uses 'toc' to determine current time.
+	- If the integer value of 'toc' matches that of the requested onset time, the associated presentation event is handled.  After the handling event, the presentation iterator is added upon, so only the first iteration of the integer value is handled.
+	- After an image presentation, the duration is subtracted from the image cut off time (.5s) to represent when the display to switch to fixation.  This is handled by a second 'toc' evaluation (below).
+	- If a duration after image presentation is calculated, a second integer value of 'toc' with only the tenths value is recorded. If it matches when a 'cut-off fixation' onset occurs, then fixation will be displayed.  Note that the presentation iterator is not added to, and that cut-off fixations are not recorded to the timing output.
+	- Handling events are dependent on the condition value in the run list, which represents the presentation event: 1/2 are images, 0 is a fixation
+	- Opens files for timing and response write
+	- Escape key aborts cycle and any following presentations
+	- While loop is broken if the iterator passes the number of events in the run list.
+	- Screen is cleared after loop is finished.
+
+Class definition details --
+
+pres.m
+-Properties: img, txt, fix_color, misc, lh, temp_t (Observable)
+-Methods: pres (constructor), dispfix, dispimg, disptxt, and propset
+
+Properties (main):
+- img is a property expecting the image matrix of one picture.  Utilized by dispimg().
+- txt is a property expecting a string for disptxt().
+- misc contains function handles for fixation, image, and text display
+- lh contains listener handles.
+- temp_t is an Observable property that is filled by methods dispfix, dispimg, and disptxt, which represents the start of any of these presentations.
+
+Methods (main):
+pres (constructor)
+	- Requires a 'src' object of class main.
+	- Creates function handles, listeners, and stores properties to an object instance of class pres.
+
+dispfix
+	- Utilizes fixation display function handles to display a fixation cross.
+	- Stores onset to temp_t.
+	- Corresponds to lh1.
+dispimg
+	- Utilizes image display function handles to display an image.
+- Stores onset to temp_t.
+	- Corresponds to lh2.
+
+disptxt
+	- Utilizes text display function handles to display a text to screen.
+	- Stores onset to temp_t.
+	- Corresponds to lh3.
+
+propset
+	- Is executed upon any changes to property 'dat' in objects of class 'main'.
+	- Reads all fields of 'dat' and replaces corresponding object properties.  This is necessary to transfer the current image and text data to objects of class pres.
+	- Corresponds to lh4.

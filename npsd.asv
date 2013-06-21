@@ -101,7 +101,7 @@ end
 
 % % Clean up
 % ListenChar(0);
-% ShowCursor;
+% ShowCursor; 
 % ShowHideFullWinTaskbarMex(1);
 % Screen('Preference','VisualDebugLevel',obj.monitor.oldVisualDebugLevel);
 % Screen('Preference','VisualDebugLevel',obj.monitor.oldOverrideMultimediaEngine);

@@ -3,13 +3,14 @@ classdef main < handle
     % See dated ReadMe file
     
     properties
-        debug = 1; % Debug on/off
+        exec = 'default'; % Execute type, associated with bin files
         monitor
         path
         exp
         image
         temp_t
         abort = 0;
+        img
     end
     
     properties (SetObservable)
@@ -259,11 +260,20 @@ classdef main < handle
         
         function addl(obj,src)
             obj.exp.lh = addlistener(src,'temp_t','PostSet',@(src,evt)tset(obj,src,evt));
+%             obj.exp.lh2 = addlistener(src,'abort','PostSet',@(src,evt)abortcycle(obj,src,evt));
         end
         
         function tset(obj,src,evt) % Corresponding to lh
             try
                 obj.temp_t = evt.AffectedObject.temp_t;
+            catch ME
+                throw(ME);
+            end
+        end
+        
+        function abortcycle(obj,src,evt) % Corresponding to lh2
+            try
+                obj.abort = evt.AffectedObject.abort;
             catch ME
                 throw(ME);
             end
@@ -294,14 +304,12 @@ classdef main < handle
                     if str2double(tnow2)==t2 % Match duration cut-off
                         notify(obj,'fix');
                         event = 'Fixation';
-                        if obj.debug
-                            disp('----'); % Temp break
-                            disp(['Scheduled: ' num2str(t2)]) % Temp declared start time
-                            disp(['Current: ' tnow2]) % Temp reported current time
-                            disp(['Reported: ' num2str(obj.temp_t - t0)]) % Temp reported start time.
-                            disp('Event Value: Cut-off fixation') % Temp event value
-                            disp(['Stimulus: ' event]) % Temp event
-                        end
+                        disp('----'); % Temp break
+                        disp(['Scheduled: ' int2str(t2)]) % Temp declared start time
+                        disp(['Current: ' tnow2]) % Temp reported current time
+                        disp(['Reported: ' num2str(obj.temp_t - t0)]) % Temp reported start time.
+                        disp('Event Value: Cut-off fixation') % Temp event value
+                        disp(['Stimulus: ' event]) % Temp event
                         t2 = []; % Remove from schedule
                     end
                 end
@@ -321,19 +329,15 @@ classdef main < handle
                     
                     i = i + 1; % ***Essential to prevent racing notifications
                     
-                    if i > size(obj.exp.dat{2,run},1) % Kill loop if index is greater than list size
-                        break;
-                    end
+                    if i >
                     
-                    if obj.debug
-                        disp('----'); % Temp break
-                        disp(['Scheduled: ' int2str(t)]) % Temp declared start time
-                        disp(['Current: ' tnow]) % Temp reported current time
-                        disp(['Reported: ' num2str(obj.temp_t - t0)]) % Temp reported start time.
-                        disp(['Event Value: ' int2str(evt)]) % Temp event value
-                        disp(['Stimulus: ' event]) % Temp event
-                    end
-                                
+                    disp('----'); % Temp break
+                    disp(['Scheduled: ' int2str(t)]) % Temp declared start time
+                    disp(['Current: ' tnow]) % Temp reported current time
+                    disp(['Reported: ' num2str(obj.temp_t - t0)]) % Temp reported start time.
+                    disp(['Event Value: ' int2str(evt)]) % Temp event value
+                    disp(['Stimulus: ' event]) % Temp event
+                    
                     fprintf(fid_t,'%s,%s,%s,%s,%s,%s\r',int2str(t),num2str(obj.temp_t - t0),int2str(evt),int2str(dur),label,event);
                     
                     % Find next event and start time
@@ -343,13 +347,13 @@ classdef main < handle
                     label = obj.exp.dat{2,run}{i,obj.exp.dat{1,run}(4)};
                     stimname = obj.exp.dat{2,run}{i,obj.exp.dat{1,run}(5)};
                     
+%                     [keyIsDown,secs,keyCode]=KbCheck; %#ok<ASGLU>
+%                     if (keyIsDown==1 && keyCode(obj.exp.keys.esckey))
+%                         obj.abort = 1;
+%                         break;
+%                     end;
+                    
                 end
-                
-                [keyIsDown,secs,keyCode]=KbCheck; %#ok<ASGLU>
-                if (keyIsDown==1 && keyCode(obj.exp.keys.esckey))
-                    obj.abort = 1;
-                    break;
-                end;
             end
             
             fclose(fid_t);
