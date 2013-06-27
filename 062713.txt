@@ -1,6 +1,6 @@
 NPSD
 As requested by Adriene Beltz (axb1017@psu.edu)
-6/21/13
+6/27/13
 
 Author: Ken Hwang (ken.r.hwang@gmail.com)
 SLEIC, PSU
@@ -22,6 +22,14 @@ Updates:
 		- Added disptxt() to pres
 		- Added propset() to pres
 
+	6/26/13 krh
+		- Updated cycle() for key press and response logging.
+		- Updated npsd for triggering and window management
+	6/27/13 krh
+		- Updated npsd.m for Intro screen, triggering, and clean-up
+		- Updated expset() in main to include exp.intro for intro screen
+		- Modifed imgload() to update image property appropriately
+
 ------------------------------
 
 Package contents --
@@ -38,9 +46,18 @@ Package contents --
 
 Usage instructions and general details--
 
-****
-****
-****
+To run:
+- "npsd" on command line.
+- Enter appropriate experimental parameters at GUI.  Subject ID and order list must not be blank.
+- Choose Yes/No for automated/manual triggering.  Automated: Waits for scanner trigger pulse.  Manual: Requires synchronized spacebar press by scanner operator.  Simulated DisDaq follows
+- Run lists are generated from content/xls.  Any number or order of lists is passable.
+- Look for output file in out/
+
+Modification of run lists:
+- content/xls/ file namess must correspond with directory listing names in content/images/
+- Each directory in content/images must contain all the *.jpg files that are called from the corresponding run list xls.
+- Run list xls must have a 5 column format, and timing/durations must make sense.  Each file name must correspond to the image file names in the corresponding /content/image/<runlist> directory.
+- Event codes 0, 1, and 2, must associate with fixation, image type #1, and image type #2, respectively.
 
 
 Primary script details --
@@ -49,7 +66,10 @@ npsd.m
 -Initializes directory structure
 -Initializes object of class main and class pres.
 -Initializes PsychToolBox window
+-Displays intro screen/text
+-Runs triggering routine, and shows wait text during trigger wait durations
 -Runs main.cycle() in appropriate order according to exp.order
+-Cleans up window after presentation is over
 
 Secondary script details --
 
@@ -74,7 +94,7 @@ Properties (main):
 - monitor stores all display-related information, primarily driven from PsychToolbox.  Populated by 'disp'.
 - path is the path directory structure, stored as strings.  Requires directory root and sub-directory list.  Populated by 'pathset'.
 - exp are experimental parameters including: presentation structure and timing, subject info, TR, iPAT, disdaq period, key definitions, cut-off fixation time, and relevant text.  Populated by 'expset'.
-- image is a matrix with length according to number of selected run lists.  Each entry contains image matrices in a cell that is the size of the run list.  Null values stand for fixation.
+- image is a cell with contents according to number of selected run lists. Each entry contains image matrices in a cell that is the size of the run list.  Null values stand for fixation.
 - temp_t is the temporary onset value (computer time).  This value is modified by tset
 - abort is set at a default of 0.  This is modified in cycle()
 - dat (Observable) is a general data structure for transferring values from objects of class main to class pres.  pres.propset() is the callback function to populate object instances of class pres upon changes to 'dat'.
@@ -107,6 +127,7 @@ imgload
 	- Evaluates only selected lists
 	- Pre-allocates image property
 	- Fills image property with images according to dat presentation order for each list
+	- Skipped runs do not images loaded into the image property, but are left blank
 	- All data is populated into the 'image' property.
 
 addl
@@ -126,6 +147,7 @@ cycle
 	- If a duration after image presentation is calculated, a second integer value of 'toc' with only the tenths value is recorded. If it matches when a 'cut-off fixation' onset occurs, then fixation will be displayed.  Note that the presentation iterator is not added to, and that cut-off fixations are not recorded to the timing output.
 	- Handling events are dependent on the condition value in the run list, which represents the presentation event: 1/2 are images, 0 is a fixation
 	- Opens files for timing and response write
+	- Evaluates key press at each iteration, records key press and reaction time from start of trial to fid
 	- Escape key aborts cycle and any following presentations
 	- While loop is broken if the iterator passes the number of events in the run list.
 	- Screen is cleared after loop is finished.
@@ -154,7 +176,7 @@ dispfix
 	- Corresponds to lh1.
 dispimg
 	- Utilizes image display function handles to display an image.
-- Stores onset to temp_t.
+	- Stores onset to temp_t.
 	- Corresponds to lh2.
 
 disptxt

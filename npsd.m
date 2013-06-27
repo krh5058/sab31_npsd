@@ -1,3 +1,4 @@
+function npsd
 % NPSD
 % As requested by Adriene Beltz & Sheri Berenbaum
 % 6/15/13
@@ -57,40 +58,35 @@ catch ME
     throw(ME)
 end
 
-% fprintf('npsd.m: Beginning presentation sequence...\n')
-% ListenChar(2);
-% HideCursor;
-% ShowHideFullWinTaskbarMex(0);
-% 
-% % Wait for instructions
-% RestrictKeysForKbCheck(p_obj.keys.spacekey);
-% obj.dat.txt = obj.exp.intro;
-% notify(obj,'txt');
-% KbStrokeWait; % Spacebar to continue
+fprintf('npsd.m: Beginning presentation sequence...\n')
+ListenChar(2);
+HideCursor;
+ShowHideFullWinTaskbarMex(0);
 
+% Wait for instructions
+RestrictKeysForKbCheck([obj.exp.keys.spacekey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
+obj.dat.txt = obj.exp.intro;
+notify(obj,'txt');
 KbStrokeWait;
+
+obj.dat.txt = obj.exp.wait;
+notify(obj,'txt');
 
 for i = obj.exp.order
     
-%     % Triggering
-%     if obj.exp.trig % Auto-trigger
-%         RestrictKeysForKbCheck(p_obj.keys.tkey);
-%         obj.dat.fix_color = obj.monitor.gray;
-%         notify(obj,'fix');
-%         KbStrokeWait; % Waiting for first trigger pulse
-%         obj.dat.fix_color = obj.monitor.white;
-%     else % Manual trigger
-%         RestrictKeysForKbCheck(p_obj.keys.spacekey);
-%         obj.dat.fix_color = obj.monitor.gray;
-%         notify(obj,'fix');
-%         KbStrokeWait; % Waiting for scanner operator
-%         obj.dat.fix_color = obj.monitor.gray2;
-%         notify(obj,'fix');
-%         pause(obj.exp.DisDaq); % Simulating DisDaq
-%         obj.dat.fix_color = obj.monitor.white;
-%     end
+    % Triggering
+    if obj.exp.trig % Auto-trigger
+        RestrictKeysForKbCheck(obj.exp.keys.tkey);
+        KbStrokeWait; % Waiting for first trigger pulse
+    else % Manual trigger
+        RestrictKeysForKbCheck(obj.exp.keys.spacekey);
+        KbStrokeWait; % Waiting for scanner operator
+        obj.dat.txt = obj.exp.wait2;
+        notify(obj,'txt');
+        pause(obj.exp.DisDaq); % Simulating DisDaq
+    end
     
-    RestrictKeysForKbCheck([obj.exp.keys.esckey]);
+    RestrictKeysForKbCheck([obj.exp.keys.esckey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
     obj.cycle(i);
     
     if obj.abort
@@ -99,13 +95,12 @@ for i = obj.exp.order
     
 end
 
-% % Clean up
-% ListenChar(0);
-% ShowCursor;
-% ShowHideFullWinTaskbarMex(1);
-% Screen('Preference','VisualDebugLevel',obj.monitor.oldVisualDebugLevel);
-% Screen('Preference','VisualDebugLevel',obj.monitor.oldOverrideMultimediaEngine);
+% Clean up
+ListenChar(0);
+ShowCursor; 
+ShowHideFullWinTaskbarMex(1);
+Screen('Preference','VisualDebugLevel',obj.monitor.oldVisualDebugLevel);
 fclose('all');
 Screen('CloseAll');
-% 
-% end
+
+end
