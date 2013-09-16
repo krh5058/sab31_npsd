@@ -61,7 +61,7 @@ end
 fprintf('npsd.m: Beginning presentation sequence...\n')
 ListenChar(2);
 HideCursor;
-ShowHideFullWinTaskbarMex(0);
+ShowHideWinTaskbarMex(0);
 
 % Wait for instructions
 RestrictKeysForKbCheck([obj.exp.keys.spacekey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
@@ -98,7 +98,7 @@ end
 % Clean up
 ListenChar(0);
 ShowCursor; 
-ShowHideFullWinTaskbarMex(1);
+ShowHideWinTaskbarMex(1);
 Screen('Preference','VisualDebugLevel',obj.monitor.oldVisualDebugLevel);
 fclose('all');
 Screen('CloseAll');

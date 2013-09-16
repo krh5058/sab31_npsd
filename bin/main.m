@@ -3,7 +3,7 @@ classdef main < handle
     % See dated ReadMe file
     
     properties
-        debug = 1; % Debug on/off
+        debug = 0; % Debug on/off
         monitor
         path
         exp
@@ -25,7 +25,7 @@ classdef main < handle
     methods (Static)
         function [monitor] = disp()
             % Find out screen number.
-            debug = 1;
+            debug = 0;
             if debug
                 %                 whichScreen = max(Screen('Screens'));
                 whichScreen = 1;
