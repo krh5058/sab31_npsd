@@ -52,7 +52,7 @@ try
     % Open and format window
     obj.monitor.w = Screen('OpenWindow',obj.monitor.whichScreen,obj.monitor.black);
     Screen('BlendFunction',obj.monitor.w, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    Screen('TextSize',obj.monitor.w,30);
+    Screen('TextSize',obj.monitor.w,obj.exp.textsize);
     fprintf('npsd.m: Window initialization success!.\n')
 catch ME
     throw(ME)
@@ -64,35 +64,53 @@ HideCursor;
 ShowHideWinTaskbarMex(0);
 
 % Wait for instructions
-RestrictKeysForKbCheck([obj.exp.keys.spacekey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
-obj.dat.txt = obj.exp.intro;
+RestrictKeysForKbCheck([obj.exp.keys.spacekey obj.exp.keys.esckey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
+obj.dat.txt = obj.exp.intro1;
 notify(obj,'txt');
-KbStrokeWait;
+[~,keyCode] = KbStrokeWait;
 
-obj.dat.txt = obj.exp.wait;
-notify(obj,'txt');
+if (find(keyCode)==obj.exp.keys.esckey)
+    obj.abort = 1;
+end
 
-for i = obj.exp.order
+if obj.abort
+else
+    obj.dat.txt = obj.exp.intro2;
+    notify(obj,'txt');
+    [~,keyCode] = KbStrokeWait;
     
-    % Triggering
-    if obj.exp.trig % Auto-trigger
-        RestrictKeysForKbCheck(obj.exp.keys.tkey);
-        KbStrokeWait; % Waiting for first trigger pulse
-    else % Manual trigger
-        RestrictKeysForKbCheck(obj.exp.keys.spacekey);
-        KbStrokeWait; % Waiting for scanner operator
-        obj.dat.txt = obj.exp.wait2;
-        notify(obj,'txt');
-        pause(obj.exp.DisDaq); % Simulating DisDaq
+    if (find(keyCode)==obj.exp.keys.esckey)
+        obj.abort = 1;
     end
+end
+
+if obj.abort
+else
+    obj.dat.txt = obj.exp.wait;
+    notify(obj,'txt');
     
-    RestrictKeysForKbCheck([obj.exp.keys.esckey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
-    obj.cycle(i);
-    
-    if obj.abort
-        break;
+    for i = obj.exp.order
+        
+        % Triggering
+        if obj.exp.trig % Auto-trigger
+            RestrictKeysForKbCheck(obj.exp.keys.tkey);
+            KbStrokeWait; % Waiting for first trigger pulse
+        else % Manual trigger
+            RestrictKeysForKbCheck(obj.exp.keys.spacekey);
+            KbStrokeWait; % Waiting for scanner operator
+            obj.dat.txt = obj.exp.wait2;
+            notify(obj,'txt');
+            pause(obj.exp.DisDaq); % Simulating DisDaq
+        end
+        
+        RestrictKeysForKbCheck([obj.exp.keys.esckey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
+        obj.cycle(i);
+        
+        if obj.abort
+            break;
+        end
+        
     end
-    
 end
 
 % Clean up

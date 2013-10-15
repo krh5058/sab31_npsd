@@ -27,8 +27,15 @@ t1 = BorderFactory.createTitledBorder('Subject ID:');
 tf1Panel.setBorder(t1);
 tf1Panel.add(textField);
 
+% Set-up text size entry
+tf2Panel = JPanel(GridLayout(2,1));
+textField2 = JTextField('18');
+t2 = BorderFactory.createTitledBorder('Text size:');
+tf2Panel.setBorder(t2);
+tf2Panel.add(textField2);
+
 % Set-up trigger radio buttons
-rb2Panel = JPanel(GridLayout(2,1));
+rb2Panel = JPanel(GridLayout(3,1));
 t2 = BorderFactory.createTitledBorder('Trigger:');
 rb2Panel.setBorder(t2);
 yes1 = JRadioButton('Yes');
@@ -45,10 +52,11 @@ rb2Panel.add(yes1);
 rb2Panel.add(no1);
 
 % Set-up left pane
-left = JPanel(GridLayout(2,1));
+left = JPanel(GridLayout(3,1));
 left.setMinimumSize(Dimension(150,225));
 left.setPreferredSize(Dimension(150,225));
 left.add(tf1Panel);
+left.add(tf2Panel);
 left.add(rb2Panel);
 
 % Set-up first right panel
@@ -151,12 +159,15 @@ frame.setVisible(1);
 
     function onConfirm(obj,evt) % When confirm button is pressed
         sid = textField.getText();
+        textsize = textField2.getText();
         selectedModel1 = group1.getSelection();
         trig = selectedModel1.getActionCommand();
         listout = cell(listArray);
         
         if isempty(char(sid)) % Check for empty SID
             javax.swing.JOptionPane.showMessageDialog(frame,'Subject ID is empty!','Subject ID check',javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        elseif isempty(char(textsize))
+            javax.swing.JOptionPane.showMessageDialog(frame,'Text Size is empty!','Text Size check',javax.swing.JOptionPane.INFORMATION_MESSAGE);
         elseif all(cellfun(@isempty,listout)) % Check for empty order list
             javax.swing.JOptionPane.showMessageDialog(frame,'Order list is empty!','Order list check',javax.swing.JOptionPane.INFORMATION_MESSAGE);
         else
@@ -168,6 +179,7 @@ frame.setVisible(1);
             end
             
             infostring = sprintf(['Subject ID: ' char(sid) ...
+                '\nText Size: ' char(textsize) ...
                 '\nTrigger: ' char(trig) ...
                 '\nOrder: ' s(1:end-1) ...
                 '\n\nIs this correct?']);
@@ -181,7 +193,7 @@ frame.setVisible(1);
                     case 'No'
                         trig = 0;
                 end
-                setappdata(frame,'UserData',{char(sid),trig,listout});
+                setappdata(frame,'UserData',{char(sid),char(textsize),trig,listout});
                 frame.dispose();
             else
             end

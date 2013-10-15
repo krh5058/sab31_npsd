@@ -28,7 +28,7 @@ classdef main < handle
             debug = 0;
             if debug
                 %                 whichScreen = max(Screen('Screens'));
-                whichScreen = 1;
+                whichScreen = 2;
                 Screen('Preference', 'Verbosity', 5);
             else
                 whichScreen = 0;
@@ -211,11 +211,12 @@ classdef main < handle
             end
             
             exp.sid = s{1};
-            exp.trig = s{2};
+            exp.textsize = str2double(s{2});
+            exp.trig = s{3};
             
             order = [];
             for i = 1:length(exp.runvals)
-               order_ind = find(strcmp(s{3},exp.runvals{i}));
+               order_ind = find(strcmp(s{4},exp.runvals{i}));
                if isempty(order_ind)
                    order_ind = 0; % Order entry is 0 if not included
                end
@@ -231,10 +232,13 @@ classdef main < handle
             exp.DisDaq = 4.75; % Verify this
             exp.f_out = [exp.sid '_out'];
             exp.durcutoff = .5;
-            exp.intro = ['You will see a series of images. Please pay attention to them.\n\n\n\n' ...
+            exp.intro1 = ['You will see a series of images. \n' ...
+                'Please pay attention to them.\n\n\n\n' ...
                 'The images will be displayed \n' ...
                 'one at a time for about 5 seconds each.\n\n' ...
-                'Indicate how emotionally arousing\n' ...
+                'Press any button to continue.'];
+            
+            exp.intro2 = ['Indicate how emotionally arousing\n' ...
                 'each image is by pressing a button\n' ...
                 'with your right hand while the image is being displayed.\n\n\n\n' ...
                 '1 (index finger) - Not Emotionally Arousing\n\n' ...
