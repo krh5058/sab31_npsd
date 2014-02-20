@@ -86,25 +86,38 @@ end
 
 if obj.abort
 else
-    obj.dat.txt = obj.exp.wait;
-    notify(obj,'txt');
-    
+
     for i = obj.exp.order
         
-        % Triggering
-        if obj.exp.trig % Auto-trigger
-            RestrictKeysForKbCheck(obj.exp.keys.tkey);
-            KbStrokeWait; % Waiting for first trigger pulse
-        else % Manual trigger
-            RestrictKeysForKbCheck(obj.exp.keys.spacekey);
-            KbStrokeWait; % Waiting for scanner operator
+        obj.dat.txt = obj.exp.wait;
+        notify(obj,'txt');
+        
+        RestrictKeysForKbCheck([obj.exp.keys.spacekey obj.exp.keys.esckey]);
+        [~,keyCode] = KbStrokeWait;
+        
+        if (find(keyCode)==obj.exp.keys.esckey)
+            obj.abort = 1;
+        else
+            
             obj.dat.txt = obj.exp.wait2;
             notify(obj,'txt');
-            pause(obj.exp.DisDaq); % Simulating DisDaq
+            
+            % Triggering
+            if obj.exp.trig % Auto-trigger
+                RestrictKeysForKbCheck(obj.exp.keys.tkey);
+                KbStrokeWait; % Waiting for first trigger pulse
+            else % Manual trigger
+                RestrictKeysForKbCheck(obj.exp.keys.spacekey);
+                KbStrokeWait; % Waiting for scanner operator
+                obj.dat.txt = obj.exp.wait3;
+                notify(obj,'txt');
+                pause(obj.exp.DisDaq); % Simulating DisDaq
+            end
+            
+            RestrictKeysForKbCheck([obj.exp.keys.esckey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
+            obj.cycle(i);
+            
         end
-        
-        RestrictKeysForKbCheck([obj.exp.keys.esckey obj.exp.keys.key1 obj.exp.keys.key2 obj.exp.keys.key3 obj.exp.keys.key4]);
-        obj.cycle(i);
         
         if obj.abort
             break;
