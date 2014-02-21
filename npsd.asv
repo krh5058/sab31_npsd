@@ -89,17 +89,8 @@ else
 
     for i = obj.exp.order
         
-        if i==obj.exp.order(1)
-            scr1 = obj.exp.wait;
-            scr2 = obj.exp.wait2;
-            scr3 = obj.exp.wait3;
-        else
-            scr1 = obj.exp.con_wait;
-            scr2 = obj.exp.con_wait2;
-            scr3 = obj.exp.con_wait3;            
-        end
         
-        obj.dat.txt = scr1;
+        obj.dat.txt = obj.exp.wait;
         notify(obj,'txt');
         
         RestrictKeysForKbCheck([obj.exp.keys.spacekey obj.exp.keys.esckey]);
@@ -109,7 +100,7 @@ else
             obj.abort = 1;
         else
             
-            obj.dat.txt = scr2;
+            obj.dat.txt = obj.exp.wait2;
             notify(obj,'txt');
             
             % Triggering
@@ -119,7 +110,7 @@ else
             else % Manual trigger
                 RestrictKeysForKbCheck(obj.exp.keys.spacekey);
                 KbStrokeWait; % Waiting for scanner operator
-                obj.dat.txt = scr3;
+                obj.dat.txt = obj.exp.wait3;
                 notify(obj,'txt');
                 pause(obj.exp.DisDaq); % Simulating DisDaq
             end

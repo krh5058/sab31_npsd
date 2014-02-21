@@ -251,6 +251,10 @@ classdef main < handle
             exp.wait2 = 'Remain still.  The experiment is about to begin..';
             exp.wait3 = 'Remain still.  The experiment is about to begin...';
             
+            exp.con_wait = 'Please remain still. The experiment will continue in a moment.';
+            exp.con_wait2 = 'Please remain still. The experiment will continue in a moment..';
+            exp.con_wait3 = 'Please remain still. The experiment will continue in a moment...';
+            
             % Keys
             fprintf('pres.m (pres): Defining key press identifiers...\n');
             KbName('UnifyKeyNames');
